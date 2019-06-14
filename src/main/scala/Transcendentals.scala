@@ -1,6 +1,3 @@
-]
-package project
-
 object Transcendentals {
 
   // Because sqMatrix is a case class, we can construct a new sqMatrix instance,
@@ -36,7 +33,7 @@ object Transcendentals {
 
     def -(that: sqMatrix): sqMatrix = {
       assert(dim == that.dim)
-      ???
+      sqMatrix(dim, (row, col) => this (row, col) - that(row, col))
     }
 
     def dist(that: sqMatrix): Double = {
@@ -51,16 +48,16 @@ object Transcendentals {
     def *(that: sqMatrix): sqMatrix = {
       assert(dim == that.dim)
       sqMatrix(dim, (row, col) => {
-        (??? until ???).foldLeft(???)((sum: Double, k: Int) => ??? + ??? * ???)
+        (0 until dim).foldLeft(0)((sum: Double, k: Int) => sum + ??? * ???)
       })
     }
 
     def *(that: Integer): sqMatrix = {
-      sqMatrix(???, (row, col) => ??? * ???)
+      sqMatrix(dim, (row, col) => that * this(row, col))
     }
 
     def *(that: Double): sqMatrix = {
-      sqMatrix(???, (row, col) => ??? * ???
+      sqMatrix(dim, (row, col) => that * this(row, col))
     }
 
     def /(that: sqMatrix): sqMatrix = {
@@ -214,8 +211,8 @@ object Transcendentals {
     //  If n is odd, then calculate m to the power one less than n, then multiply the result by m.
     def pow(exponent: Int): sqMatrix = {
       exponent match {
-        case 0 => ???
-        case 1 => ???
+        case 0 => identity
+        case 1 => this
         case i if i < 0 => pow(-i).inverse
         case i if i % 2 == 1 => { // odd
           ??? * pow(???)
