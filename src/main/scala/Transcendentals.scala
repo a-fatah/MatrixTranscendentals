@@ -48,7 +48,7 @@ object Transcendentals {
     def *(that: sqMatrix): sqMatrix = {
       assert(dim == that.dim)
       sqMatrix(dim, (row, col) => {
-        (0 until dim).foldLeft(0)((sum: Double, k: Int) => sum + ??? * ???)
+        (0 until dim).foldLeft(0.0)((sum: Double, k: Int) => sum + this(row, col) * that(col, row))
       })
     }
 
@@ -233,6 +233,13 @@ object Transcendentals {
       m1 + m2
     }
 
+    def factorial(n: Int): Int = {
+      if (n <= 1)
+        1
+      else
+        n * factorial(n - 1)
+    }
+
     // nTerms is the number of terms used in the Taylor expansions
     //   for exp, sin, and cos
     val nTerms = 12
@@ -240,22 +247,36 @@ object Transcendentals {
     //           1    M^1   M^2   M^3
     // exp(M) = --- + --- + --- + --- + ...
     //           0!    1!    2!    3!
-    def exp(): sqMatrix = sumTuple((???).foldLeft((???,???)) {
-      case ((sum, term), n) => (??? + ???, ???)
+    def exp(): sqMatrix = sumTuple((1 until nTerms).foldLeft((identity, this)) {
+      case ((sum, term), n) => (sum + term.pow(n) * (1/factorial(n)), this)
     })
 
     //           1    M^2   M^4   M^6
     // cos(M) = --- - --- + --- - --- + ...
     //           0!    2!    4!    6!
-    def cos(): sqMatrix = sumTuple((???).foldLeft((???,???)) {
-      case ((sum, term), n) => ???
+    def cos(): sqMatrix = sumTuple((1 until nTerms).foldLeft((identity, this)) {
+      case ((sum, term), n) => n match {
+        case even if n % 2 == 0 => {
+          (sum + term.pow(n) * (1/factorial(n-1)), this)
+        }
+        case odd if n % 2 > 0 => {
+          (sum - term.pow(n + 2) * (1/factorial(n + 2)), this)
+        }
+      }
     })
 
     //          M^1   M^3   M^5   M^7
     // sin(M) = --- - --- + --- - --- + ...
     //           1!    3!    5!    7!
-    def sin(): sqMatrix = sumTuple((???).foldLeft((???, ???)) {
-      case ((sum, term), n) => ???
+    def sin(): sqMatrix = sumTuple(((1 until nTerms)).foldLeft((identity, this)) {
+      case ((sum, term), n) => n match {
+        case even if n % 2 == 0 => {
+          (sum + term.pow(n) * (1/factorial(n-1)), this)
+        }
+        case odd if n % 2 > 0 => {
+          (sum - term.pow(n + 3) * (1/factorial(n + 3)), this)
+        }
+      }
     })
 
     //            sin(M)
