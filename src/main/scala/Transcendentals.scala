@@ -215,10 +215,10 @@ object Transcendentals {
         case 1 => this
         case i if i < 0 => pow(-i).inverse
         case i if i % 2 == 1 => { // odd
-          ??? * pow(???)
+          this * pow(i - 1)
         }
         case i => { //even
-          val m = pow(???)
+          val m = pow(i / 2)
           m * m
         }
       }
