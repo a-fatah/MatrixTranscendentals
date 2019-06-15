@@ -48,7 +48,7 @@ object Transcendentals {
     def *(that: sqMatrix): sqMatrix = {
       assert(dim == that.dim)
       sqMatrix(dim, (row, col) => {
-        (0 until dim).foldLeft(0.0)((sum: Double, k: Int) => sum + this(row, col) * that(col, row))
+        (0 until dim).foldLeft(0.0)((sum: Double, k: Int) => sum + this(row, k) * that(k, col))
       })
     }
 
@@ -213,11 +213,11 @@ object Transcendentals {
       exponent match {
         case 0 => identity
         case 1 => this
-        case i if i < 0 => pow(-i).inverse
+        case i if i < 0 => inverse.pow(-i)
         case i if i % 2 == 1 => { // odd
           this * pow(i - 1)
         }
-        case i => { //even
+        case i if i % 2 == 0 => { //even
           val m = pow(i / 2)
           m * m
         }
@@ -242,13 +242,15 @@ object Transcendentals {
 
     // nTerms is the number of terms used in the Taylor expansions
     //   for exp, sin, and cos
-    val nTerms = 12
+    val nTerms = 13
 
     //           1    M^1   M^2   M^3
     // exp(M) = --- + --- + --- + --- + ...
     //           0!    1!    2!    3!
-    def exp(): sqMatrix = sumTuple((1 until nTerms).foldLeft((identity, this)) {
-      case ((sum, term), n) => (sum + term.pow(n) * (1/factorial(n)), this)
+    def exp(): sqMatrix = sumTuple((0 until nTerms).foldLeft((zero, this)) {
+      case ((sum, term), n) => {
+        (sum + term, pow(n) * (1.0 / factorial(n)))
+      }
     })
 
     //           1    M^2   M^4   M^6
@@ -256,11 +258,18 @@ object Transcendentals {
     //           0!    2!    4!    6!
     def cos(): sqMatrix = sumTuple((1 until nTerms).foldLeft((identity, this)) {
       case ((sum, term), n) => n match {
+        case even if n % 2 == 0 => (sum + term, pow(n + 2) * (1.0 / factorial(n + 2)))
+        case odd if n % 2 > 0 => (sum - term, pow(n + 2) * (1.0 / factorial(n + 2)))
+      }
+    })
+
+    def cos2(): sqMatrix = sumTuple((0 until nTerms).foldLeft((identity, this)) {
+      case ((sum, term), n) => n match {
         case even if n % 2 == 0 => {
-          (sum + term.pow(n) * (1/factorial(n-1)), this)
+          (sum + term, pow(n) * (1.0 / factorial(n - 1)))
         }
         case odd if n % 2 > 0 => {
-          (sum - term.pow(n + 2) * (1/factorial(n + 2)), this)
+          (sum - term * pow(n + 1) * (1 / factorial(n + 1)), pow(n + 2) * (1 / factorial(n + 2)))
         }
       }
     })
@@ -268,10 +277,16 @@ object Transcendentals {
     //          M^1   M^3   M^5   M^7
     // sin(M) = --- - --- + --- - --- + ...
     //           1!    3!    5!    7!
-    def sin(): sqMatrix = sumTuple(((1 until nTerms)).foldLeft((identity, this)) {
+    def sin(): sqMatrix = sumTuple((1 until nTerms).foldLeft((zero, this)) {
+      case ((sum, term), n) => n match {
+        case even if n % 2 == 0 => (sum + term, pow(n + 2) * (1.0 / factorial(n + 2)))
+        case odd if n % 2 > 0 => (sum - term, pow(n + 2) * (1.0 / factorial(n + 2)))
+      }
+    })
+    def sin2(): sqMatrix = sumTuple((1 until nTerms).foldLeft((identity, this)) {
       case ((sum, term), n) => n match {
         case even if n % 2 == 0 => {
-          (sum + term.pow(n) * (1/factorial(n-1)), this)
+          (sum + term.pow(n) * (1.0/factorial(n-1)), this)
         }
         case odd if n % 2 > 0 => {
           (sum - term.pow(n + 3) * (1/factorial(n + 3)), this)
@@ -308,6 +323,32 @@ object Transcendentals {
   }
 
   def main(argv: Array[String]): Unit = {
+
+
+    val m1 = sqMatrix(
+      Array(
+        Array(8.0, 0.0, 1.0),
+        Array(0.0, 3.0, 5.0),
+        Array(1.0, 2.0, 3.0)
+      )
+    )
+
+    val m2 = sqMatrix(
+      Array(
+        Array(11.0, 3.0, 2.0),
+        Array(10.0, 2.0, 4.0),
+        Array(9.0, 4.0, 2.0)
+      )
+    )
+
+    val m3 = sqMatrix(
+      Array(
+        Array(1.0, 2.0),
+        Array(3.0, 4.0)
+      )
+    )
+    val result = m3.exp()
+    println(result.toString)
 
   }
 }
