@@ -324,31 +324,5 @@ object Transcendentals {
 
   def main(argv: Array[String]): Unit = {
 
-
-    val m1 = sqMatrix(
-      Array(
-        Array(8.0, 0.0, 1.0),
-        Array(0.0, 3.0, 5.0),
-        Array(1.0, 2.0, 3.0)
-      )
-    )
-
-    val m2 = sqMatrix(
-      Array(
-        Array(11.0, 3.0, 2.0),
-        Array(10.0, 2.0, 4.0),
-        Array(9.0, 4.0, 2.0)
-      )
-    )
-
-    val m3 = sqMatrix(
-      Array(
-        Array(1.0, 2.0),
-        Array(3.0, 4.0)
-      )
-    )
-    val result = m3.exp()
-    println(result.toString)
-
   }
 }
